@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>业务员管理 - 销售线索管理系统</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        button { padding: 8px 12px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #d32f2f; }
+        .active { color: #4CAF50; }
+        .inactive { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h2>业务员管理</h2>
+    
+    <h3>业务员列表</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>状态</th>
+            <th>客户数</th>
+            <th>今日分配</th>
+            <th>操作</th>
+        </tr>
+        {% for salesman in salesmen %}
+        <tr>
+            <td>{{ salesman.id }}</td>
+            <td>{{ salesman.username }}</td>
+            <td><span class="{{ 'active' if salesman.active else 'inactive' }}">{{ '活跃' if salesman.active else '已禁用' }}</span></td>
+            <td>{{ salesman.leads|length }}</td>
+            <td>TODO</td>
+            <td>
+                <a href="{{ url_for('toggle_salesman', id=salesman.id) }}">
+                    <button>{{ '禁用' if salesman.active else '启用' }}</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}">返回仪表盘</a> | 
+        <a href="{{ url_for('logout') }}">退出登录</a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>    
