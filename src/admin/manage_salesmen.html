@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}业务员管理{% endblock %}
+
+{% block content %}
+    <h1>业务员管理</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>所有业务员（共 {{ salesmen|length }} 人）</h3>
+            <a href="{{ url_for('add_salesman') }}" class="btn btn-success">添加业务员</a>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>状态</th>
+                        <th>负责客户数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        {% for salesman in salesmen %}
+    <tr>
+        <td>{{ salesman.id }}</td>
+        <td>{{ salesman.username }}</td>
+        <td>
+            {% if salesman.is_active %}
+                <span class="text-success">启用</span>
+            {% else %}
+                <span class="text-danger">禁用</span>
+            {% endif %}
+        </td>
+        <td>{{ salesman.customers|length }}</td>
+        <td>
+            <a href="{{ url_for('edit_salesman', id=salesman.id) }}" class="btn btn-primary btn-sm">编辑</a>
+            <form action="{{ url_for('toggle_salesman', id=salesman.id) }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-warning btn-sm">
+                    {% if salesman.is_active %}禁用{% else %}启用{% endif %}
+                </button>
+            </form>
+            <form action="{{ url_for('delete_salesman', id=salesman.id) }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger btn-sm" 
+                        onclick="return confirm('确认删除此业务员？');">
+                    删除
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
