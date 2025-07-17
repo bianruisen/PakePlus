@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>客户管理 - 销售线索管理系统</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h2 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button { padding: 8px 12px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0b7dda; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        select { padding: 6px; border: 1px solid #ddd; border-radius: 4px; }
+        .error { color: #ff0000; margin-bottom: 10px; }
+        .success { color: #008000; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>客户管理</h2>
+    
+    <h3>添加新客户</h3>
+    <form method="POST" action="{{ url_for('admin_leads') }}">
+        <div class="form-group">
+            <label for="name">姓名:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">电话:</label>
+            <input type="text" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">邮箱:</label>
+            <input type="email" id="email" name="email">
+        </div>
+        <div class="form-group">
+            <label for="company">公司:</label>
+            <input type="text" id="company" name="company">
+        </div>
+        <button type="submit">添加客户</button>
+    </form>
+    
+    <h3>未分配客户列表</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>姓名</th>
+            <th>电话</th>
+            <th>邮箱</th>
+            <th>公司</th>
+            <th>添加日期</th>
+            <th>分配</th>
+        </tr>
+        {% for lead in leads %}
+        <tr>
+            <td>{{ lead.id }}</td>
+            <td>{{ lead.name }}</td>
+            <td>{{ lead.phone }}</td>
+            <td>{{ lead.email or '-' }}</td>
+            <td>{{ lead.company or '-' }}</td>
+            <td>{{ lead.assigned_date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('assign_leads') }}">
+                    <input type="hidden" name="count" value="1">
+                    <select name="salesman_id">
+                        {% for salesman in current_user.query.filter_by(role='salesman', active=True).all() %}
+                        <option value="{{ salesman.id }}">{{ salesman.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">分配</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}">返回仪表盘</a> | 
+        <a href="{{ url_for('logout') }}">退出登录</a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>    
