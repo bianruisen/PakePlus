@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}业务员面板{% endblock %}
+
+{% block content %}
+    <h1>业务员面板</h1>
+    
+    <div class="card">
+        <div class="card-header">今日任务</div>
+        <div class="card-body">
+            <p>欢迎回来，{{ salesman.username }}！</p>
+            <p>今天您有 <strong>{{ customers|length }}</strong> 个客户需要联系。</p>
+            
+            {% if customers %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>客户名称</th>
+                        <th>联系电话</th>
+                        <th>描述</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td>{{ customer.description }}</td>
+                        <td>{{ "已联系" if customer.dialed else "未联系" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-primary">标记为已联系</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>今日暂无分配的客户。</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
