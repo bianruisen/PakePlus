@@ -1,32 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
-
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
-            </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
-            </div>
-        </main>
-    </body>
-</html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>淘宝视频解析 - 假一赔四</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { background: #f7f7f7; font-family: 'Segoe UI', 'PingFang SC', Arial, sans-serif; }
+        .container { max-width: 480px; margin: 60px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px #0001; padding: 32px 24px; }
+        h1 { text-align: center; color: #ff5000; margin-bottom: 18px; }
+        .desc { color: #888; text-align: center; margin-bottom: 24px; }
+        textarea { width: 100%; min-height: 80px; border: 1px solid #eee; border-radius: 6px; padding: 10px; font-size: 15px; margin-bottom: 18px; resize: vertical; }
+        .btn-row { display: flex; gap: 10px; margin-bottom: 18px; }
+        .btn { flex: 1; background: #ff9800; color: #fff; border: none; border-radius: 6px; padding: 10px 0; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #e64500; }
+        .btn-clear { background: #bbb; }
+        .btn-clear:hover { background: #888; }
+        .parse-btn { width: 100%; background: #ff5000; color: #fff; border: none; border-radius: 6px; padding: 12px 0; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .parse-btn:hover { background: #e64500; }
+        .error { color: #e00; text-align: center; margin-bottom: 12px; }
+        .result { margin-top: 24px; }
+        .result-title { color: #333; font-weight: bold; margin-bottom: 8px; }
+        .video-block { margin-bottom: 20px; }
+        .video-link { word-break: break-all; background: #f5f5f5; border-radius: 4px; padding: 6px 8px; margin-bottom: 8px; display: block; }
+        .footer { text-align: center; color: #aaa; font-size: 13px; margin-top: 32px; }
+        .video-player { width: 100%; max-width: 100%; border-radius: 8px; background: #000; margin-bottom: 8px; }
+        .download-btn { display: inline-block; background: #4caf50; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; font-size: 15px; cursor: pointer; text-decoration: none; margin-bottom: 8px; }
+        .download-btn:hover { background: #388e3c; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>淘宝视频解析</h1>
+    <div class="desc">粘贴任意淘宝分享内容，自动提取短链接并解析视频</div>
+    <textarea id="share_text" placeholder="请粘贴淘宝分享内容..."></textarea>
+    <div class="btn-row">
+        <button type="button" class="btn" onclick="pasteClipboard()">粘贴</button>
+        <button type="button" class="btn btn-clear" onclick="clearTextarea()">清空</button>
+    </div>
+    <button class="parse-btn" onclick="parseVideo()">解析视频</button>
+    <div id="error" class="error" style="display:none;"></div>
+    <div id="result" class="result" style="display:none;"></div>
+</div>
+<div class="footer">&copy; 2024 淘宝视频解析 | 假一赔四</div>
+<script>
+// 自动读取剪贴板内容并自动解析
+window.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (text && /https?:\/\/e\.tb\.cn\//.test(text)) {
+            document.getElementById('share_text').value = text;
+            parseVideo();
+        }
+    } catch (e) {}
+});
+async function pasteClipboard() {
+    try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('share_text').value = text;
+    } catch (e) {
+        alert('无法读取剪贴板内容，请手动粘贴');
+    }
+}
+function clearTextarea() {
+    document.getElementById('share_text').value = '';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
+}
+function extractShortUrl(text) {
+    const match = text.match(/https?:\/\/e\.tb\.cn\/\S+/);
+    return match ? match[0] : '';
+}
+async function parseVideo() {
+    const shareText = document.getElementById('share_text').value.trim();
+    const url = extractShortUrl(shareText);
+    const errorDiv = document.getElementById('error');
+    const resultDiv = document.getElementById('result');
+    errorDiv.style.display = 'none';
+    resultDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    resultDiv.innerHTML = '';
+    if (!url) {
+        errorDiv.textContent = '未检测到有效的淘宝短链接！';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    try {
+        resultDiv.innerHTML = '正在解析，请稍候...';
+        resultDiv.style.display = 'block';
+        const resp = await fetch('http://cn-hk-bgp-4.ofalias.net:49710/extract_video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+        const data = await resp.json();
+        if (data.error) {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+        } else if (data.video_links && data.video_links.length > 0) {
+            let html = '<div class="result-title">提取到的视频：</div>';
+            for (const link of data.video_links) {
+                html += `<div class="video-block">
+                    <video class="video-player" src="${link}" controls preload="none"></video>
+                    <a class="download-btn" href="${link}" download>下载视频</a>
+                    <div class="video-link">${link}</div>
+                </div>`;
+            }
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        } else {
+            errorDiv.textContent = '未在该页面源码中发现视频链接。';
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+        }
+    } catch (e) {
+        errorDiv.textContent = '请求或解析过程中出错：' + e;
+        errorDiv.style.display = 'block';
+        resultDiv.style.display = 'none';
+    }
+}
+</script>
+</body>
+</html> 
