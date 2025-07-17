@@ -1,0 +1,43 @@
+<!-- templates/admin/bulk_add_customers.html -->
+{% extends "layout.html" %}
+
+{% block title %}批量导入客户{% endblock %}
+
+{% block content %}
+    <h1>批量导入客户</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>导入说明</h3>
+        </div>
+        <div class="card-body">
+            <p>请使用CSV格式文件批量导入客户，文件格式应为：</p>
+            <pre>姓名,电话,描述,业务员ID</pre>
+            <p>其中：</p>
+            <ul>
+                <li>业务员ID为可选字段，留空则不分配业务员</li>
+                <li>可通过下方选择框获取业务员ID参考</li>
+                <li>第一行为标题行，会被自动忽略</li>
+            </ul>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>选择CSV文件</label>
+                    <input type="file" name="file" class="form-control-file" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>业务员ID参考</label>
+                    <select class="form-control" disabled>
+                        <option value="">-- 业务员ID列表 --</option>
+                        {% for s in salesmen %}
+                        <option value="{{ s.id }}">{{ s.username }} (ID: {{ s.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">开始导入</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
