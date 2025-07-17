@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+
+{% block title %}管理员面板{% endblock %}
+
+{% block content %}
+    <h1>管理员面板</h1>
+    
+    <div class="card">
+        <div class="card-header">系统概览</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p>业务员总数: <strong>{{ total_salesmen }}</strong></p>
+                </div>
+                <div class="col-md-4">
+                    <p>客户总数: <strong>{{ total_customers }}</strong></p>
+                </div>
+                <div class="col-md-4">
+                    <p>已联系客户: <strong>{{ total_dialed }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">客户增长趋势</div>
+        <div class="card-body">
+            <canvas id="customerGrowthChart" height="100"></canvas>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">业务员工作情况</div>
+        <div class="card-body">
+            <table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>姓名</th>
+            <th>电话</th>
+            <th>业务员</th>
+            <th>分配状态</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr>
+            <td>{{ customer.id }}</td>
+            <td>{{ customer.name }}</td>
+            <td>{{ customer.phone }}</td>
+            <td>{{ customer.salesman.username if customer.salesman else '未分配' }}</td>
+            <td>
+                {% if customer.salesman %}
+                    <span class="text-success">已分配</span>
+                {% elif customer.auto_assign %}
+                    <span class="text-warning">等待自动分配</span>
+                {% else %}
+                    <span class="text-danger">未分配</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('edit_customer', id=customer.id) }}" class="btn btn-primary btn-sm">编辑</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">操作入口</div>
+        <div class="card-body">
+            <!-- templates/admin/dashboard.html -->
+            <a href="{{ url_for('bulk_add_customers') }}" class="btn btn-info">批量导入客户</a>
+            <a href="{{ url_for('add_customer') }}" class="btn btn-primary">添加新客户</a>
+        </div>
+    </div>
+    
+    <script>
+        // 客户增长趋势图表
+        const ctx = document.getElementById('customerGrowthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ months|tojson }},
+                datasets: [{
+                    label: '客户数量',
+                    data: {{ customer_counts|tojson }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
