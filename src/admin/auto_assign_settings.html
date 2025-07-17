@@ -1,0 +1,62 @@
+<!-- templates/admin/auto_assign_settings.html -->
+{% extends "layout.html" %}
+
+{% block title %}自动分配设置{% endblock %}
+
+{% block content %}
+    <h1>自动分配设置</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>等待分配的客户 ({{ unassigned_customers|length }})</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>电话</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in unassigned_customers %}
+                    <tr>
+                        <td>{{ customer.id }}</td>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td>
+                            <a href="{{ url_for('assign_customer', id=customer.id) }}" class="btn btn-primary btn-sm">立即分配</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>业务员负载情况</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>业务员</th>
+                        <th>已分配客户数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in salesman_stats %}
+                    <tr>
+                        <td>{{ stat.salesman.username }}</td>
+                        <td>{{ stat.assigned_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
